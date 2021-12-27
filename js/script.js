@@ -1,6 +1,4 @@
 
-
-var resDisplay = document.querySelector('#test');
 //C'est super bien ranger
 $.get("https://coronavirusapifr.herokuapp.com/data/live/departements", function(result){
   //console.log(result);
