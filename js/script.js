@@ -1,15 +1,14 @@
-
 //C'est super bien ranger
 $.get("https://coronavirusapifr.herokuapp.com/data/live/departements", function(result){
   //console.log(result);
-  console.log("ALLOOOOOOOO");
+  //console.log("ALLOOOOOOOO");
   let jsonRequest = JSON.stringify(result);
   let objRequest = JSON.parse(jsonRequest);
   $("#test").text(jsonRequest);
   
-  console.log(objRequest);
+  //console.log(objRequest);
   let selectedDep = $("#select_dep").val();
-    console.log(selectedDep);
+    //console.log(selectedDep);
     $("#date_donnees").text(objRequest[selectedDep-1].date);
 
     $("#region").text(objRequest[selectedDep-1].lib_reg);
@@ -22,7 +21,7 @@ $.get("https://coronavirusapifr.herokuapp.com/data/live/departements", function(
 
   $("#select_dep").on('change', () =>{
     let selectedDep = $("#select_dep").val();
-    console.log(selectedDep);
+    //console.log(selectedDep);
     $("#date_donnees").text(objRequest[selectedDep-1].date);
 
     $("#region").text(objRequest[selectedDep-1].lib_reg);

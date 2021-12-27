@@ -1,5 +1,3 @@
-console.log(listOfDep);
-
 /*
 const labels = [
     'January',
@@ -32,58 +30,21 @@ const myChart = new Chart(
 );
 */
 
-var labels = [];
-var dataForEachDay = [];
-
-var chart1sem;
-var chart15j;
-var chart1m;
-var today = new Date();
-//console.log(date);
-//console.log(calculNewDate(5));
-
-$('#1sem').on('click', () =>{
-    if(chart1sem == undefined){
-        for(let i=0; i<7; i++){
-            labels.unshift(calculNewDate(i)); //Ajoute les éléments aux débuts du tableau
-            dataForEachDay.unshift(getDataAtPreciseDateDep(listOfDep.get($("#select_dep").val()),labels[0]))
-        }
-        console.log(labels);
-        console.log(dataForEachDay);
-    }
-})
-
-$('#15j').on('click', () =>{
-    if(chart1sem == undefined){
-        for(let i=0; i<15; i++){
-            
-        }
-    }
-})
-
-$('#1m').on('click', () =>{
-    if(chart1sem == undefined){
-        for(let i=0; i<7; i++){
-            
-        }
-    }
-})
-
 /*
 Fonction permettant de récupérer vers l'API les données d'un département à une date précise.
 */
 
-function getDataAtPreciseDateDep(dep, date){
+async function getDataAtPreciseDateDep(dep, date) {
     let res = [];
-    console.log(dep+'   '+date);
-    $.get("https://coronavirusapifr.herokuapp.com/data/departement/"+dep+"/"+date, function(result){
+    console.log(dep + '   ' + date);
+    await $.get("https://coronavirusapifr.herokuapp.com/data/departement/" + dep + "/" + date, function (result) {
         console.log(result);
         //console.log("ALLOOOOOOOO");
         let jsonRequest = JSON.stringify(result);
         let objRequest = JSON.parse(jsonRequest);
-        res = objRequest;
-    })   
-    return res;    
+        res = objRequest[0];
+    });
+    return res;
 }
 
 
@@ -112,6 +73,69 @@ function calculNewDate(i){
     }
     return date;
 }
+
+function createChart(myChart, )
+
+var labels = [];
+var dataForEachDay = [];
+var selectedDep = listOfDep.get(parseInt($("#select_dep").val()));
+var dataHosp = [];
+
+var chart1sem;
+var chart15j;
+var chart1m;
+var today = new Date();
+
+$('#1sem').on('click', () =>{
+    if(chart1sem == undefined){
+        for(let i=0; i<7; i++){
+            labels.unshift(calculNewDate(i)); //Ajoute les éléments aux débuts du tableau
+            dataForEachDay.unshift(getDataAtPreciseDateDep(selectedDep,labels[0]));
+        }
+        console.log("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+        dataForEachDay.forEach(element =>  dataHosp.unshift(element.hosp));
+        
+        const data = {
+            labels: labels,
+            datasets: [{
+              label: 'Hospitalisations - '+selectedDep+' 1 semaine',
+              backgroundColor: 'rgb(255, 99, 132)',
+              borderColor: 'rgb(255, 99, 132)',
+              data: dataHosp,
+            }]
+        };
+        const config = {
+            type: 'line',
+            data: data,
+            options: {}
+        };
+        
+        chart1sem = new Chart(
+            $('#myChart'),
+            config
+        );
+        console.log(labels);
+        console.log(dataForEachDay);
+    }
+})
+
+$('#15j').on('click', () =>{
+    if(chart1sem == undefined){
+        for(let i=0; i<15; i++){
+            
+        }
+    }
+})
+
+$('#1m').on('click', () =>{
+    if(chart1sem == undefined){
+        for(let i=0; i<30; i++){
+            
+        }
+    }
+})
+
+
 
 
 
