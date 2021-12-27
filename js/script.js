@@ -33,5 +33,4 @@ $.get("https://coronavirusapifr.herokuapp.com/data/live/departements", function(
     $("#v3").text(objRequest[selectedDep-1].rad);
     $("#v4").text(objRequest[selectedDep-1].dchosp);
   })
-  
 })
