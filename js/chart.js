@@ -153,12 +153,15 @@ var today = new Date();
 $('#1sem').on('click', () =>{
     if(dataFor7Days.length == 0){
         getDataOnAPeriod(selectedDep,dataFor7Days,7,labelsFor7Days).then(() =>{
+            sortDataTableWithDate(dataFor7Days);
+            sortLabelsTableWithDate(labelsFor7Days);
+            dataFor7Days.reverse();
+            console.log(dataFor7Days);
+            console.log(labelsFor7Days);
+
             dataFor7Days.forEach(element =>  dataHosp.unshift(element.hosp));
             buildMyChart(labelsFor7Days,selectedDep,dataHosp);
             
-                //console.log(labels);
-                //console.log(dataFor7Days);
-                console.log(myChart);
         }).catch(() =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
         })
@@ -172,11 +175,14 @@ $('#1sem').on('click', () =>{
 $('#15j').on('click', () =>{
     if(dataFor15Days.length == 0){
         getDataOnAPeriod(selectedDep,dataFor15Days,15,labelsFor15Days).then(() =>{
+            sortDataTableWithDate(dataFor15Days);
+            sortLabelsTableWithDate(labelsFor15Days);
+            dataFor15Days.reverse();
+
             dataFor15Days.forEach(element =>  dataHosp.unshift(element.hosp));
         
             buildMyChart(labelsFor15Days,selectedDep,dataHosp);
-            //console.log(labels);
-            //console.log(dataForEachDay);
+            
             console.log(myChart);
         }).catch(() =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
@@ -191,12 +197,13 @@ $('#15j').on('click', () =>{
 $('#1m').on('click', () =>{
     if(dataFor30Days.length == 0){
         getDataOnAPeriod(selectedDep,dataFor30Days,30,labelsFor30Days).then(() =>{
+            sortDataTableWithDate(dataFor30Days);
+            sortLabelsTableWithDate(labelsFor30Days);
+            dataFor30Days.reverse();
+
             dataFor30Days.forEach(element =>  dataHosp.unshift(element.hosp));
             buildMyChart(labelsFor30Days,selectedDep,dataHosp);
             
-            //console.log(labels);
-            //console.log(dataForEachDay);
-            console.log(myChart);
         }).catch(() =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
         })
@@ -233,7 +240,72 @@ function calculNewDate(i){
     return date;
 }
 
+function sortDataTableWithDate(table){
+    var changed;
+    do{
+        changed = false;
+        for(var i=0; i < table.length-1; i++) {
+            //console.log(table);
+            //console.log(formatDateInFR(table[i].date));
+            var d1 = formatDateInFR(table[i].date);
+            var d2 = formatDateInFR(table[i+1].date);
+            if(compareDates(d1, d2)) {
+                var tmp = table[i];
+                table[i] = table[i+1];
+                table[i+1] = tmp;
+                changed = true;
+            }
+        }
+    } while(changed);
+}
 
+function sortLabelsTableWithDate(table){
+    var changed;
+    do{
+        changed = false;
+        for(var i=0; i < table.length-1; i++) {
+            //console.log(table);
+            var d1 = table[i];
+            var d2 = table[i+1];
+            if(compareDates(d1, d2)) {
+                var tmp = table[i];
+                table[i] = table[i+1];
+                table[i+1] = tmp;
+                changed = true;
+            }
+        }
+    } while(changed);
+}
+
+// Takes two strings as input, format is dd-mm-yyyy
+// returns true if d1 is bigger than  d2
+
+function compareDates(d1, d2){
+    var partsD1 = d1.split('-');
+    var partsD2 = d2.split('-');
+    var res = false;
+    if(parseInt(partsD1[2],10) > parseInt(partsD2[2],10)){
+        res = true;
+    }else if(parseInt(partsD1[2],10) == parseInt(partsD2[2],10)){
+        if(parseInt(partsD1[1],10) > parseInt(partsD2[1],10)){
+            res = true;
+        }else if(parseInt(partsD1[1],10) == parseInt(partsD2[1],10)){
+            if(parseInt(partsD1[0],10) > parseInt(partsD2[0],10)){
+                res = true;
+            }
+        }
+    }
+    return res;
+}
+
+/*
+Fonction permettant de passer une date du format US au format FR 
+*/
+function formatDateInFR(date){
+    var parts = date.split('-');
+    var res = parts[2] + '-' + parts[1]+ '-' + parts[0];
+    return res;
+}
 
 
 
