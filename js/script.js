@@ -1,26 +1,30 @@
-//C'est super bien ranger
+
 $.get("https://coronavirusapifr.herokuapp.com/data/live/departements", function(result){
   //console.log(result);
   console.log("ALLOOOOOOOO");
-  reloadData(result);
-
-  $("#select_dep").on('change', () =>{
-    reloadData(result);
-  })
-})
-
-function reloadData(result){
   let jsonRequest = JSON.stringify(result);
   let objRequest = JSON.parse(jsonRequest);
+  $("#test").text(jsonRequest);
   
-  let selectedDep = $("#select_dep").val();
-  $("#date_donnees").text(objRequest[selectedDep-1].date);
+  console.log(objRequest);
+	UpdateTable();
 
-  $("#region").text(objRequest[selectedDep-1].lib_reg);
-  $("#dep").text(objRequest[selectedDep-1].lib_dep);
+  $("#select_dep").on('change', () =>{
+    UpdateTable();
+  })
+  
+  function UpdateTable() {
+    let selectedDep = $("#select_dep").val();
+    console.log(objRequest[selectedDep]);
+    $("#date_donnees").text(objRequest[selectedDep].date);
 
-  $("#v1").text(objRequest[selectedDep-1].rea);
-  $("#v2").text(objRequest[selectedDep-1].hosp);
-  $("#v3").text(objRequest[selectedDep-1].rad);
-  $("#v4").text(objRequest[selectedDep-1].dchosp);
+    $("#region").text(objRequest[selectedDep].lib_reg);
+    $("#dep").text(objRequest[selectedDep].lib_dep);
+
+    $("#v1").text(objRequest[selectedDep].rea);
+    $("#v2").text(objRequest[selectedDep].hosp);
+    $("#v3").text(objRequest[selectedDep].rad);
+    $("#v4").text(objRequest[selectedDep].dchosp);
 }
+  
+})
