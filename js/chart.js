@@ -75,63 +75,48 @@ function getDataOnAPeriod(dep, res, days, labels){
     })
 }
 
-function addData(chart, label, data) {
-    chart.data.labels.push(label);
-    chart.data.datasets.forEach((dataset) => {
-        dataset.data.push(data);
-    });
-    chart.update();
-}
-
-function removeData(chart) {
-    chart.data.labels.pop();
-    chart.data.datasets.forEach((dataset) => {
-        dataset.data.pop();
-    });
-    chart.update();
-}
+var resetCanvas = function(){
+    $('#results-graph').remove(); // this is my <canvas> element
+    $('#graph-container').append('<canvas id="results-graph"><canvas>');
+    canvas = document.querySelector('#results-graph');
+    ctx = canvas.getContext('2d');
+    ctx.canvas.width = $('#graph-container').width(); // resize to parent width
+    ctx.canvas.height = $('#graph-container').height(); // resize to parent height
+    var x = canvas.width/2;
+    var y = canvas.height/2;
+    ctx.font = '10pt Verdana';
+    ctx.textAlign = 'center';
+    ctx.fillText('This text is centered on the canvas', x, y);
+};
 
 function buildMyChart(labels, selectedDep, dataHosp){
-    if(myChart === undefined){
-        console.log('new chart');
-        const data = {
-            labels: labels,
-                datasets: [{
-                    label: 'Hospitalisations - '+selectedDep+' - 1 semaine',
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: dataHosp,
-                }]
-            };
-            const config = {
-                type: 'line',
-                data: data,
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+    resetCanvas();
+    console.log('new chart');
+    const data = {
+        labels: labels,
+            datasets: [{
+                label: 'Hospitalisations - '+selectedDep+' - 1 semaine',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: dataHosp,
+            }]
+        };
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            };
-        
-            myChart = new Chart(
-                $('#myChart'),
-                config
-            );
-    }else{
-        //IL FAUT CORRIGER LA MODIFICATION DES DONNEES DANS LE CHART
-        console.log('modify existing chart');
-        removeData(myChart);
-        let datasets = [{
-            label: 'Hospitalisations - '+selectedDep+' - 1 semaine',
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            data: dataHosp,
-        }];
-        addData(myChart, labels, datasets);
-    }
+            }
+        };
     
+        let myChart = new Chart(
+            $('#results-graph'),
+            config
+        );
 }
 
 
@@ -146,7 +131,6 @@ var dataFor30Days = [];
 var selectedDep = listOfDep.get(parseInt($("#select_dep").val()));
 var dataHosp = [];
 
-var myChart;
 
 var today = new Date();
 
@@ -162,8 +146,9 @@ $('#1sem').on('click', () =>{
             dataFor7Days.forEach(element =>  dataHosp.unshift(element.hosp));
             buildMyChart(labelsFor7Days,selectedDep,dataHosp);
             
-        }).catch(() =>{
+        }).catch((err) =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
+            console.error(err);
         })
     }else{
         dataFor7Days.forEach(element =>  dataHosp.unshift(element.hosp));

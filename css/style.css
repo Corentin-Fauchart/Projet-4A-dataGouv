@@ -34,6 +34,18 @@ h2{
     gap: 10px;
 }
 
+#graph-container{
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    height: fit-content;
+}
+
+#graph-container #results-graph{
+    display: flex;
+    height: 400px;
+}
+
 td,
 th {
     border: 1px solid rgb(190, 190, 190);
