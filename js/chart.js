@@ -34,6 +34,24 @@ const myChart = new Chart(
 Fonction permettant de récupérer vers l'API les données d'un département à une date précise.
 */
 
+var labelsFor7Days = new Array();
+var labelsFor15Days = new Array();
+var labelsFor30Days = new Array();
+
+var dataFor7Days = new Array();
+var dataFor15Days = new Array();
+var dataFor30Days = new Array();
+
+var selectedDep = listOfDep.get(parseInt($("#select_dep").val()));;
+var dataHosp = [];
+
+
+var today = new Date();
+
+$("#select_dep").on('change', () =>{
+    selectedDep = listOfDep.get(parseInt($("#select_dep").val()));
+});
+
 function getDataAtPreciseDateDep(dep, date, res) {
         console.log(dep + '   ' + date);
         return $.get("https://coronavirusapifr.herokuapp.com/data/departement/" + dep + "/" + date, function (result) {
@@ -42,15 +60,17 @@ function getDataAtPreciseDateDep(dep, date, res) {
             let jsonRequest = JSON.stringify(result);
             let objRequest = JSON.parse(jsonRequest);
             res.push(objRequest[0]);
+            console.log("Valeur de res :");
+            console.log(res);
         });
 }
 
-function getDataOnAPeriod(dep, res, days, labels){
+function getDataOnAPeriod(dep, res, days, labels, nbDaystoPass){
     console.log("OUIII");
     return new Promise((success, failure) =>{
         let nbERROR = 0;
-        let promises = [];
-        for(let i=0; i<days; i++){
+        let promises = new Array();
+        for(let i=nbDaystoPass; i<days; i++){
             promises.push(getDataAtPreciseDateDep(dep, calculNewDate(i+nbERROR), res).done(function() {
                 //Si la fonction a bien trouvé des données pour cette date
                 console.log("FOUND DATA");
@@ -120,23 +140,11 @@ function buildMyChart(labels, selectedDep, dataHosp){
 }
 
 
-var labelsFor7Days = [];
-var labelsFor15Days = [];
-var labelsFor30Days = [];
 
-var dataFor7Days = [];
-var dataFor15Days = [];
-var dataFor30Days = [];
-
-var selectedDep = listOfDep.get(parseInt($("#select_dep").val()));
-var dataHosp = [];
-
-
-var today = new Date();
 
 $('#1sem').on('click', () =>{
     if(dataFor7Days.length == 0){
-        getDataOnAPeriod(selectedDep,dataFor7Days,7,labelsFor7Days).then(() =>{
+        getDataOnAPeriod(selectedDep,dataFor7Days,7,labelsFor7Days,0).then(() =>{
             sortDataTableWithDate(dataFor7Days);
             sortLabelsTableWithDate(labelsFor7Days);
             dataFor7Days.reverse();
@@ -159,7 +167,18 @@ $('#1sem').on('click', () =>{
 
 $('#15j').on('click', () =>{
     if(dataFor15Days.length == 0){
-        getDataOnAPeriod(selectedDep,dataFor15Days,15,labelsFor15Days).then(() =>{
+        let nbDaystoPass = 0;
+        if(dataFor7Days.length != 0){
+            dataFor15Days = JSON.parse(JSON.stringify(dataFor7Days));
+            labelsFor15Days = JSON.parse(JSON.stringify(labelsFor7Days));
+            console.log("Tableau copié :");
+            console.log(dataFor7Days);
+            //dataFor15Days.push("ELLELELELELLELELELE");
+            console.log("Tableau des 15 j :");
+            console.log(dataFor15Days);
+            nbDaystoPass += 7;
+        }
+        getDataOnAPeriod(selectedDep,dataFor15Days,15,labelsFor15Days, nbDaystoPass).then(() =>{
             sortDataTableWithDate(dataFor15Days);
             sortLabelsTableWithDate(labelsFor15Days);
             dataFor15Days.reverse();
@@ -168,11 +187,11 @@ $('#15j').on('click', () =>{
         
             buildMyChart(labelsFor15Days,selectedDep,dataHosp);
             
-            console.log(myChart);
-        }).catch(() =>{
+        }).catch((err) =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
+            console.error(err);
         })
-    }else{
+    }    else{
         dataFor15Days.forEach(element =>  dataHosp.unshift(element.hosp));
         
         buildMyChart(labelsFor15Days,selectedDep,dataHosp);
@@ -181,7 +200,17 @@ $('#15j').on('click', () =>{
 
 $('#1m').on('click', () =>{
     if(dataFor30Days.length == 0){
-        getDataOnAPeriod(selectedDep,dataFor30Days,30,labelsFor30Days).then(() =>{
+        let nbDaystoPass = 0;
+        if(dataFor15Days.length != 0){
+            dataFor30Days = JSON.parse(JSON.stringify(dataFor15Days));
+            labelsFor30Days = JSON.parse(JSON.stringify(labelsFor15Days));
+            nbDaystoPass += 15;
+        }else if (dataFor7Days.length != 0){
+            dataFor30Days = JSON.parse(JSON.stringify(dataFor7Days));
+            labelsFor30Days = JSON.parse(JSON.stringify(labelsFor7Days));
+            nbDaystoPass += 7;
+        }
+        getDataOnAPeriod(selectedDep,dataFor30Days,30,labelsFor30Days, nbDaystoPass).then(() =>{
             sortDataTableWithDate(dataFor30Days);
             sortLabelsTableWithDate(labelsFor30Days);
             dataFor30Days.reverse();
@@ -189,8 +218,9 @@ $('#1m').on('click', () =>{
             dataFor30Days.forEach(element =>  dataHosp.unshift(element.hosp));
             buildMyChart(labelsFor30Days,selectedDep,dataHosp);
             
-        }).catch(() =>{
+        }).catch((err) =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
+            console.error(err);
         })
         
     }else{
