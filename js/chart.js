@@ -47,8 +47,12 @@ var dataFor30Days = new Map();
 var selectedDep = listOfDep.get(parseInt($("#select_dep").val()));;
 var selectedDatas ;
 
+var divGraph = $('#graph-container');
+var loader = $('.loader');
+loader.hide();
 
 var today = new Date();
+var firstTime = true;
 
 $("#select_dep").on('change', () =>{
     selectedDep = listOfDep.get(parseInt($("#select_dep").val()));
@@ -58,6 +62,36 @@ $("#multiple-select").on('change', () =>{
     selectedDatas = document.querySelector('#multiple-select').getSelectedOptions();
     console.log(selectedDatas);
 });
+
+function manageLoader(changeBack,showOrHide){
+    if(changeBack){
+        switch(showOrHide){
+            case 'show':
+                divGraph.addClass("floute");
+                loader.show();
+            break;
+            case 'hide':
+                divGraph.removeClass("floute");
+                loader.hide();
+            break;
+            default:
+                alert('Mauvaise valeur pour notre loader.');
+            break;
+        }
+    }else{
+        switch(showOrHide){
+            case 'show':
+                loader.show();
+            break;
+            case 'hide':
+                loader.hide();
+            break;
+            default:
+                alert('Mauvaise valeur pour notre loader.');
+            break;
+        }
+    }
+}
 
 function getDataAtPreciseDateDep(dep, date, res) {
         console.log(dep + '   ' + date);
@@ -74,6 +108,11 @@ function getDataAtPreciseDateDep(dep, date, res) {
 
 function getDataOnAPeriod(dep, res, days, labels, nbDaystoPass){
     console.log("OUIII");
+    if(firstTime){
+        manageLoader(false,'show');
+    }else{
+        manageLoader(true,'show');
+    }
     return new Promise((success, failure) =>{
         let nbERROR = 0;
         let promises = new Array();
@@ -107,8 +146,8 @@ var resetCanvas = function(){
     $('#graph-container').append('<canvas id="results-graph"><canvas>');
     canvas = document.querySelector('#results-graph');
     ctx = canvas.getContext('2d');
-    ctx.canvas.width = $('#graph-container').width(); // resize to parent width
-    ctx.canvas.height = $('#graph-container').height(); // resize to parent height
+    ctx.canvas.width = '100%'; // resize to parent width
+    ctx.canvas.height = '100%'; // resize to parent height
     var x = canvas.width/2;
     var y = canvas.height/2;
     ctx.font = '10pt Verdana';
@@ -183,6 +222,13 @@ function buildMyChart(labels, selectedDep, dataDays, selectedDatas){
             }
         };
     
+        if(firstTime){
+            manageLoader(false,'hide');
+            firstTime = false;
+        }else{
+            manageLoader(true,'hide');
+        }
+
         let myChart = new Chart(
             $('#results-graph'),
             config

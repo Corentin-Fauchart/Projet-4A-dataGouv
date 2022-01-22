@@ -9,6 +9,41 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../librairies/virtual-select-master/dist/virtual-select.min.css" />
     <script src="../librairies/virtual-select-master/dist/virtual-select.min.js"></script>
+    <link rel="stylesheet" href="../css/loader.css">
+
+	
+    <script type="text/javascript" src="https://germini.info/js/jqvmap/jquery.vmap.js"></script>
+    <script type="text/javascript" src="https://germini.info/js/jqvmap/maps/jquery.vmap.france.js" charset="utf-8"></script>
+    <script>
+      jQuery(document).ready(function () {
+        jQuery('#vmap').vectorMap({
+          map: 'france_fr',
+	     backgroundColor: '#ffffff',
+		borderColor: '#000000',
+		borderOpacity: 0.25,
+		borderWidth: 1,
+		color: '#f4f3f0',
+		enableZoom: true,
+		hoverColor: '#c9dfaf',
+		hoverOpacity: null,
+		normalizeFunction: 'linear',
+		scaleColors: ['#b6d6ff', '#005ace'],
+		selectedColor: '#c9dfaf',
+		selectedRegions: null,
+		showTooltip: true,
+        onRegionClick: function(element, code, region)
+        {
+		console.log(element);
+			chars = code.replace('fr-','');
+			chars = Number(chars);
+			$("#select_dep").val(chars);
+			$( "#select_dep" ).trigger('change');
+        }
+		});	
+      });
+    </script>
+
+
 </head>
 <body>
     <div id="text_pres">
@@ -31,29 +66,33 @@
             </div>
         </div>
         
-        <table>
-            <caption>Données liées à la Covid-19 en Côte-d'or</caption>
-            <tr>
-                <th scope="col">Libellé des données</th>
-                <th scope="col">Valeurs</th>
-            </tr>
-            <tr>
-                <th scope="row">Réanimations</th>
-                <td id="v1"></td>
-            </tr>
-            <tr>
-                <th scope="row">Hospitalisations</th>
-                <td id="v2"></td>
-            </tr>
-            <tr>
-                <th scope="row">Retours à domicile</th>
-                <td id="v3"></td>
-            </tr>
-            <tr>
-                <th scope="row">Décès à l'hopital</th>
-                <td id="v4"></td>
-            </tr>
-        </table>
+        <div id="tabAndMap">
+            <table>
+                <caption>Données liées à la Covid-19 en Côte-d'or</caption>
+                <tr>
+                    <th scope="col">Libellé des données</th>
+                    <th scope="col">Valeurs</th>
+                </tr>
+                <tr>
+                    <th scope="row">Réanimations</th>
+                    <td id="v1"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Hospitalisations</th>
+                    <td id="v2"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Retours à domicile</th>
+                    <td id="v3"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Décès à l'hopital</th>
+                    <td id="v4"></td>
+                </tr>
+            </table>
+            <div id="vmap"></div>
+        </div>
+        
     </div>
 
     <div class="selectors">
@@ -169,19 +208,41 @@
             <label for="multiple-select">Choisir des données à afficher dans le graph</label>
             <div  id="multiple-select"></div>
         </div>
-        
-        
-    </div>
-
-
-    <div id="graph-container">
-        <canvas id="results-graph"></canvas>
     </div>
     <div class="select_period">
         <button id="1sem">7 Jours</button>
         <button id="15j">15 Jours</button>
         <button id="1m">1 Mois</button>
     </div>
+    <div class="parent">
+        <div id="graph-container">
+            <canvas id="results-graph"></canvas>
+        </div>
+        <div class='loader'>
+            <div class='loader_cogs'>
+              <div class='COGfirst'>
+                <div class='firstPart'></div>
+                <div class='firstPart'></div>
+                <div class='firstPart'></div>
+                <div class='firstHole'></div>
+              </div>
+              <div class='COGsecond'>
+                <div class='secondPart'></div>
+                <div class='secondPart'></div>
+                <div class='secondPart'></div>
+                <div class='secondHole'></div>
+              </div>
+              <div class='COGthird'>
+                <div class='thirdPart'></div>
+                <div class='thirdPart'></div>
+                <div class='thirdPart'></div>
+                <div class='thirdHole'></div>
+              </div>
+              <p>loading..</p>
+            </div>
+          </div>
+    </div>
+    
       
 </body>
     <script type="text/javascript" src="../data/listDep.js"></script>
