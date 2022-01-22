@@ -1,0 +1,37 @@
+{
+  "name": "virtual-select-plugin",
+  "version": "1.0.24",
+  "description": "A javascript plugin for dropdown with virtual scroll",
+  "scripts": {
+    "start": "webpack --mode development --watch",
+    "build": "webpack --mode production",
+    "docs": "docsify serve docs"
+  },
+  "author": "Sa Si Dev",
+  "keywords": [
+    "javascript",
+    "plugin",
+    "select",
+    "dropdown",
+    "virtual select",
+    "virtual scroll"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "tooltip-plugin": "1.0.x"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.7",
+    "@babel/preset-env": "^7.16.7",
+    "babel-loader": "^8.2.3",
+    "css-loader": "^6.5.1",
+    "docsify-cli": "^4.4.3",
+    "filemanager-webpack-plugin": "^6.1.7",
+    "mini-css-extract-plugin": "^2.4.6",
+    "popover-plugin": "1.0.x",
+    "sass": "^1.47.0",
+    "sass-loader": "^12.4.0",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
+  }
+}
