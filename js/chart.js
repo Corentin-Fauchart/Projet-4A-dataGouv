@@ -38,18 +38,25 @@ var labelsFor7Days = new Array();
 var labelsFor15Days = new Array();
 var labelsFor30Days = new Array();
 
-var dataFor7Days = new Array();
-var dataFor15Days = new Array();
-var dataFor30Days = new Array();
+var temporaryTable = [];
+
+var dataFor7Days = new Map();
+var dataFor15Days = new Map();
+var dataFor30Days = new Map();
 
 var selectedDep = listOfDep.get(parseInt($("#select_dep").val()));;
-var dataHosp = [];
+var selectedDatas ;
 
 
 var today = new Date();
 
 $("#select_dep").on('change', () =>{
     selectedDep = listOfDep.get(parseInt($("#select_dep").val()));
+});
+
+$("#multiple-select").on('change', () =>{
+    selectedDatas = document.querySelector('#multiple-select').getSelectedOptions();
+    console.log(selectedDatas);
 });
 
 function getDataAtPreciseDateDep(dep, date, res) {
@@ -109,17 +116,42 @@ var resetCanvas = function(){
     ctx.fillText('This text is centered on the canvas', x, y);
 };
 
-function buildMyChart(labels, selectedDep, dataHosp){
+function buildMyChart(labels, selectedDep, dataDays, selectedDatas){
     resetCanvas();
     console.log('new chart');
+    console.log(dataDays);
+    let dataset = [];
+    selectedDatas.forEach(elementSelect => {
+        let myData = [];
+        console.log(dataDays.get(selectedDep));
+        dataDays.get(selectedDep).forEach(elementData => {
+            switch(elementSelect.value){
+                case 'rad':
+                    myData.push(elementData.rad);
+                break;
+                case 'dchosp':
+                    myData.push(elementData.dchosp);
+                break;
+                case 'hosp':
+                    myData.push(elementData.hosp);
+                break;
+                case 'rea':
+                    myData.push(elementData.rea);
+                break;
+            }
+        });
+        console.log('My Data :');
+        console.log(myData);
+        dataset.push({
+            label: elementSelect.label,
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: myData
+        })
+    });
     const data = {
         labels: labels,
-            datasets: [{
-                label: 'Hospitalisations - '+selectedDep+' - 1 semaine',
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: dataHosp,
-            }]
+        datasets: dataset
         };
         const config = {
             type: 'line',
@@ -139,37 +171,56 @@ function buildMyChart(labels, selectedDep, dataHosp){
         );
 }
 
+/*
+Fonction permettant de vérifier si l'on a déjà récupérer les données d'un département pour une certaine période.
+*/
+function foundMyData(selDep, data){
+    let res = false;
+    data.forEach((values,keys) => {
+        res = (keys == selDep)
+    });
+    return res;
+}
 
+/*
+Fonction ajoutant les données d'un tableau dans la Map principal.
+*/ 
+function addTableToMap(table, map, selDep){
+    map.set(selDep, table);
+}
 
 
 $('#1sem').on('click', () =>{
-    if(dataFor7Days.length == 0){
-        getDataOnAPeriod(selectedDep,dataFor7Days,7,labelsFor7Days,0).then(() =>{
-            sortDataTableWithDate(dataFor7Days);
+    temporaryTable = [];
+    if(!foundMyData(selectedDep,dataFor7Days)){
+        labelsFor7Days = [];
+        getDataOnAPeriod(selectedDep,temporaryTable,7,labelsFor7Days,0).then(() =>{
+            sortDataTableWithDate(temporaryTable);
             sortLabelsTableWithDate(labelsFor7Days);
-            dataFor7Days.reverse();
-            console.log(dataFor7Days);
+            //temporaryTable.reverse();
+            console.log(temporaryTable);
             console.log(labelsFor7Days);
 
-            dataFor7Days.forEach(element =>  dataHosp.unshift(element.hosp));
-            buildMyChart(labelsFor7Days,selectedDep,dataHosp);
+            addTableToMap(temporaryTable,dataFor7Days,selectedDep);
+
+            buildMyChart(labelsFor7Days,selectedDep,dataFor7Days,selectedDatas);
             
         }).catch((err) =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
             console.error(err);
         })
     }else{
-        dataFor7Days.forEach(element =>  dataHosp.unshift(element.hosp));
-        buildMyChart(labelsFor7Days,selectedDep,dataHosp);
+        buildMyChart(labelsFor7Days,selectedDep,dataFor7Days,selectedDatas);
     }
     
 })
 
 $('#15j').on('click', () =>{
-    if(dataFor15Days.length == 0){
+    temporaryTable = [];
+    if(!foundMyData(selectedDep,dataFor15Days)){
         let nbDaystoPass = 0;
-        if(dataFor7Days.length != 0){
-            dataFor15Days = JSON.parse(JSON.stringify(dataFor7Days));
+        if(foundMyData(selectedDep,dataFor7Days)){
+            temporaryTable = JSON.parse(JSON.stringify(dataFor7Days.get(selectedDep)));
             labelsFor15Days = JSON.parse(JSON.stringify(labelsFor7Days));
             console.log("Tableau copié :");
             console.log(dataFor7Days);
@@ -178,45 +229,46 @@ $('#15j').on('click', () =>{
             console.log(dataFor15Days);
             nbDaystoPass += 7;
         }
-        getDataOnAPeriod(selectedDep,dataFor15Days,15,labelsFor15Days, nbDaystoPass).then(() =>{
-            sortDataTableWithDate(dataFor15Days);
+        getDataOnAPeriod(selectedDep,temporaryTable,15,labelsFor15Days, nbDaystoPass).then(() =>{
+            sortDataTableWithDate(temporaryTable);
             sortLabelsTableWithDate(labelsFor15Days);
-            dataFor15Days.reverse();
+            //temporaryTable.reverse();
 
-            dataFor15Days.forEach(element =>  dataHosp.unshift(element.hosp));
+            addTableToMap(temporaryTable,dataFor15Days,selectedDep);
         
-            buildMyChart(labelsFor15Days,selectedDep,dataHosp);
+            buildMyChart(labelsFor15Days,selectedDep,dataFor15Days,selectedDatas);
             
         }).catch((err) =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
             console.error(err);
         })
     }    else{
-        dataFor15Days.forEach(element =>  dataHosp.unshift(element.hosp));
         
-        buildMyChart(labelsFor15Days,selectedDep,dataHosp);
+        buildMyChart(labelsFor15Days,selectedDep,dataFor15Days,selectedDatas);
     }
 })
 
 $('#1m').on('click', () =>{
-    if(dataFor30Days.length == 0){
+    temporaryTable = [];
+    if(!foundMyData(selectedDep,dataFor30Days)){
         let nbDaystoPass = 0;
-        if(dataFor15Days.length != 0){
-            dataFor30Days = JSON.parse(JSON.stringify(dataFor15Days));
+        if(foundMyData(selectedDep,dataFor15Days)){
+            temporaryTable = JSON.parse(JSON.stringify(dataFor15Days.get(selectedDep)));
             labelsFor30Days = JSON.parse(JSON.stringify(labelsFor15Days));
             nbDaystoPass += 15;
-        }else if (dataFor7Days.length != 0){
-            dataFor30Days = JSON.parse(JSON.stringify(dataFor7Days));
+        }else if (foundMyData(selectedDep,dataFor7Days)){
+            temporaryTable = JSON.parse(JSON.stringify(dataFor7Days.get(selectedDep)));
             labelsFor30Days = JSON.parse(JSON.stringify(labelsFor7Days));
             nbDaystoPass += 7;
         }
-        getDataOnAPeriod(selectedDep,dataFor30Days,30,labelsFor30Days, nbDaystoPass).then(() =>{
-            sortDataTableWithDate(dataFor30Days);
+        getDataOnAPeriod(selectedDep,temporaryTable,30,labelsFor30Days, nbDaystoPass).then(() =>{
+            sortDataTableWithDate(temporaryTable);
             sortLabelsTableWithDate(labelsFor30Days);
-            dataFor30Days.reverse();
+            //temporaryTable.reverse();
 
-            dataFor30Days.forEach(element =>  dataHosp.unshift(element.hosp));
-            buildMyChart(labelsFor30Days,selectedDep,dataHosp);
+            addTableToMap(temporaryTable,dataFor30Days,selectedDep);
+
+            buildMyChart(labelsFor30Days,selectedDep,dataFor30Days,selectedDatas);
             
         }).catch((err) =>{
             console.log("ERREUR LORS DE LA RECUPERATION DES DONNEES.");
@@ -224,8 +276,7 @@ $('#1m').on('click', () =>{
         })
         
     }else{
-        dataFor30Days.forEach(element =>  dataHosp.unshift(element.hosp));
-        buildMyChart(labelsFor30Days,selectedDep,dataHosp);
+        buildMyChart(labelsFor30Days,selectedDep,dataFor30Days,selectedDatas);
     }
 })
 
