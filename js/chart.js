@@ -118,6 +118,22 @@ var resetCanvas = function(){
 
 function buildMyChart(labels, selectedDep, dataDays, selectedDatas){
     resetCanvas();
+    let borderColors = 
+    [
+        'rgb(179,0,0)',
+        'rgb(0, 89, 179)',
+        'rgb(0, 102, 34)',
+        'rgb(102, 0, 204)'
+    ];
+
+    let backgroundColors = 
+    [
+        'rgb(230,0,0)',
+        'rgb(0, 128, 255)',
+        'rgb(0, 153, 51)',
+        'rgb(153, 51, 255)'
+    ];
+
     console.log('new chart');
     console.log(dataDays);
     let dataset = [];
@@ -144,10 +160,12 @@ function buildMyChart(labels, selectedDep, dataDays, selectedDatas){
         console.log(myData);
         dataset.push({
             label: elementSelect.label,
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: backgroundColors[0],
+            borderColor: borderColors[0],
             data: myData
-        })
+        });
+        borderColors.shift();
+        backgroundColors.shift();
     });
     const data = {
         labels: labels,
